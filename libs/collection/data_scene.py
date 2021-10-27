@@ -1,3 +1,5 @@
+import os.path
+
 import pandas as pd
 
 
@@ -17,4 +19,8 @@ class DataScene:
         )
 
     def save(self, folder_path):
-        pass
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        self.static.to_csv(f"{folder_path}/static.csv", index=False)
+        self.dynamic_property.to_csv(f"{folder_path}/dynamic_property.csv", index=False)
+        self.dynamic_state.to_csv(f"{folder_path}/dynamic_state.csv", index=False)

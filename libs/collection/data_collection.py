@@ -46,6 +46,10 @@ class DataCollection:
         # define instance to visualize
         self.viz = Figure()
 
+    def _store_static(self):
+        # store dynamic property
+        self._data_scene.dynamic_property = self.agent_handler.get_data_dynamic_property()
+
     def _cache_map(self):
         # draw static
         self.viz.draw_static(container=[self.list_waypoints])
@@ -69,15 +73,21 @@ class DataCollection:
 
             # TODO: collect
             # - static
-            # - dynamic property: ok
-            # - dynamic state
+            # - dynamic property:
+            # - dynamic state: ok
             now = time.time()
             # get datapoint by each delta time
             if (now - last_tick > self._config.storage.delta_time) and self._config.save_data:
                 self._data_scene.dynamic_state = pd.concat(
-                    [self._data_scene.dynamic_state, self.agent_handler.get_data()],
+                    [
+                        self._data_scene.dynamic_state,
+                        self.agent_handler.get_data_dynamic_state()
+                    ],
                     ignore_index=True
                 )
                 last_tick = now
 
             time.sleep(self._config.sleep)
+
+    def save_data(self, folder_path):
+        self._data_scene.save(folder_path)

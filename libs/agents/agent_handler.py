@@ -157,7 +157,7 @@ class AgentHandler:
             for instance in list_agents:
                 instance.run_step()
 
-    def get_data(self) -> pd.DataFrame:
+    def get_data_dynamic_state(self) -> pd.DataFrame:
         """
         Get data of all agent at the moment
         Each row should be:
@@ -169,6 +169,7 @@ class AgentHandler:
         columns = self._configs.storage.dynamic_state.columns
         data = pd.DataFrame(columns=columns)
         now = time.time()
+
         for _, agents in self.agents.items():
             for agent in agents:
                 _id = int(agent.id)
@@ -184,6 +185,35 @@ class AgentHandler:
                     [now, _id,
                      _center_x, _center_y,
                      _heading, _velocity]
+                ))
+                # add row data
+                data = data.append(row, ignore_index=True)
+
+        return data
+
+    def get_data_dynamic_property(self):
+        """
+        Get property of dynamic object
+        Columns should be:
+        | id | type | width | length |
+        Returns:
+            pd.DataFrame
+        """
+        columns = self._configs.storage.dynamic_property.columns
+        data = pd.DataFrame(columns=columns)
+
+        for _, agents in self.agents.items():
+            for agent in agents:
+                _id = int(agent.id)
+                _type = agent.type
+                _bbox = agent.actor.bounding_box
+                _width = _bbox.extent.x * 2
+                _length = _bbox.extent.y * 2
+
+                row = dict(zip(
+                    columns,
+                    [_id, _type,
+                     _width, _length]
                 ))
                 # add row data
                 data = data.append(row, ignore_index=True)
