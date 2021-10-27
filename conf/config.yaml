@@ -1,0 +1,7 @@
+defaults:
+  - connection: carla
+  - map: town01
+  - traffic: traffic01
+
+visual: True
+sleep: 0.01
