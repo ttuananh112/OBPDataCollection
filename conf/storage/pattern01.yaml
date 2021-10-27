@@ -1,0 +1,6 @@
+defaults:
+  - dynamic_property: dp01
+  - dynamic_state: ds01
+  - static: s01
+
+delta_time: 0.2  # duration of 2 consecutive times to get datapoint

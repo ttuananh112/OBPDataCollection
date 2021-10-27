@@ -1,16 +1,18 @@
 import carla
 
 
-def init_carla(config):
-    # init client, world and map
-    _client = carla.Client(
-        host=config.connection.host,
-        port=config.connection.port
-    )
-    _world = _client.load_world(config.map.town)
-    _map = _world.get_map()
+class Environment:
+    def __init__(self, config):
+        self._config = config
+        self.world, self.map = self.init_carla()
 
-    return {
-        "world": _world,
-        "map": _map
-    }
+    def init_carla(self):
+        # init client, world and map
+        _client = carla.Client(
+            host=self._config.connection.host,
+            port=self._config.connection.port
+        )
+        _world = _client.load_world(self._config.map.town)
+        _map = _world.get_map()
+
+        return _world, _map

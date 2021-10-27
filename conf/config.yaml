@@ -1,7 +1,9 @@
 defaults:
-  - connection: carla
+  - connection: local
   - map: town01
   - traffic: traffic01
+  - storage: pattern01
 
 visual: True
-sleep: 0.01
+save_data: False
+sleep: 0.001

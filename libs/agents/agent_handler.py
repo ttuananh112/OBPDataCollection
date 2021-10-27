@@ -1,19 +1,30 @@
+import time
 import carla
 import numpy as np
+import pandas as pd
+
 from agents.navigation.behavior_agent import BehaviorAgent
 from omegaconf import DictConfig
 
+from common.convert import vector3d_to_numpy
+
 
 class Agent:
+    """
+    Moving objects
+    """
+
     def __init__(
             self,
             id: int,
+            type: str,
             actor: carla.Actor,
-            agent: BehaviorAgent
+            behavior_agent: BehaviorAgent
     ):
         self._id = id
+        self._type = type
         self._actor = actor
-        self._agent = agent
+        self.behavior_agent = behavior_agent
 
     @property
     def id(self):
@@ -22,6 +33,14 @@ class Agent:
     @id.setter
     def id(self, var):
         self._id = var
+
+    @property
+    def type(self):
+        return self._type
+
+    @type.setter
+    def type(self, var):
+        self._type = var
 
     @property
     def actor(self):
@@ -33,14 +52,14 @@ class Agent:
 
     @property
     def agent(self):
-        return self._agent
+        return self.behavior_agent
 
     @agent.setter
     def agent(self, var):
-        self._agent = var
+        self.behavior_agent = var
 
     def run_step(self):
-        self._actor.apply_control(self._agent.run_step())
+        self._actor.apply_control(self.behavior_agent.run_step())
 
 
 class AgentHandler:
@@ -77,18 +96,22 @@ class AgentHandler:
         # create actor from blueprint and transform
         actor = self._world.spawn_actor(blueprint, random_transform)
         # set behavior for actor
-        agent = BehaviorAgent(actor, behavior=behavior)
+        behavior_agent = BehaviorAgent(actor, behavior=behavior)
         # add to car container
         self.agents[agent_type].append(
             Agent(
                 id=self._length,
+                type=agent_type,
                 actor=actor,
-                agent=agent
+                behavior_agent=behavior_agent
             )
         )
+        # increase length / index of agent in handler
+        self._length += 1
 
     def _get_behavior(self):
-        return np.random.choice(self._behaviors)
+        # return np.random.choice(self._behaviors)
+        return self._behaviors[0]  # cautious
 
     def _spawn_car(self):
         self._spawn(
@@ -133,3 +156,36 @@ class AgentHandler:
         for object_type, list_agents in self.agents.items():
             for instance in list_agents:
                 instance.run_step()
+
+    def get_data(self) -> pd.DataFrame:
+        """
+        Get data of all agent at the moment
+        Each row should be:
+                                                          # velocity
+        | timestamp | id | center_x | center_y | heading | status |
+        Returns:
+            pd.DataFrame
+        """
+        columns = self._configs.storage.dynamic_state.columns
+        data = pd.DataFrame(columns=columns)
+        now = time.time()
+        for _, agents in self.agents.items():
+            for agent in agents:
+                _id = int(agent.id)
+                _a_transform = agent.actor.get_transform()
+                _center_x = _a_transform.location.x
+                _center_y = _a_transform.location.y
+                _heading = float(np.radians(_a_transform.rotation.yaw))
+                # get scalar of velocity
+                _velocity = float(np.linalg.norm(vector3d_to_numpy(agent.actor.get_velocity())))
+
+                row = dict(zip(
+                    columns,
+                    [now, _id,
+                     _center_x, _center_y,
+                     _heading, _velocity]
+                ))
+                # add row data
+                data = data.append(row, ignore_index=True)
+
+        return data
