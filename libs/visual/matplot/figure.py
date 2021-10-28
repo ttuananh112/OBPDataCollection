@@ -2,7 +2,7 @@ import carla
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Union
-from agents.agent_handler import Agent
+from handler.agent_handler import Agent
 from common.convert import vector3d_to_numpy
 from common.shape import Shape
 

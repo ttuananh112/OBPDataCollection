@@ -2,64 +2,12 @@ import time
 import carla
 import numpy as np
 import pandas as pd
-
-from agents.navigation.behavior_agent import BehaviorAgent
 from omegaconf import DictConfig
 
+from agents.agent import Agent
+from agents.navigation.behavior_agent import BehaviorAgent
+
 from common.convert import vector3d_to_numpy
-
-
-class Agent:
-    """
-    Moving objects
-    """
-
-    def __init__(
-            self,
-            id: int,
-            type: str,
-            actor: carla.Actor,
-            behavior_agent: BehaviorAgent
-    ):
-        self._id = id
-        self._type = type
-        self._actor = actor
-        self.behavior_agent = behavior_agent
-
-    @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, var):
-        self._id = var
-
-    @property
-    def type(self):
-        return self._type
-
-    @type.setter
-    def type(self, var):
-        self._type = var
-
-    @property
-    def actor(self):
-        return self._actor
-
-    @actor.setter
-    def actor(self, var):
-        self._actor = var
-
-    @property
-    def agent(self):
-        return self.behavior_agent
-
-    @agent.setter
-    def agent(self, var):
-        self.behavior_agent = var
-
-    def run_step(self):
-        self._actor.apply_control(self.behavior_agent.run_step())
 
 
 class AgentHandler:
@@ -86,6 +34,9 @@ class AgentHandler:
             "bicycle": [],
             "pedestrian": []
         }
+
+        # spawn actors
+        self._spawn_actors()
 
     def _spawn(self, model_name, agent_type, behavior):
         # get random transform in world
@@ -138,7 +89,7 @@ class AgentHandler:
         #     behavior=self._get_behavior()
         # )
 
-    def spawn_actors(self):
+    def _spawn_actors(self):
         # spawn cars
         for _ in range(self._configs.traffic.num_car):
             self._spawn_car()
@@ -207,8 +158,8 @@ class AgentHandler:
                 _id = int(agent.id)
                 _type = agent.type
                 _bbox = agent.actor.bounding_box
-                _width = _bbox.extent.x * 2
-                _length = _bbox.extent.y * 2
+                _width = _bbox.extent.y * 2
+                _length = _bbox.extent.x * 2
 
                 row = dict(zip(
                     columns,

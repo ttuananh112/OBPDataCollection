@@ -4,57 +4,53 @@ from omegaconf import DictConfig
 
 from collection.data_scene import DataScene
 from common.environment import Environment
-from agents.agent_handler import AgentHandler
 from visual.matplot.figure import Figure
-
-from common.shape import (
-    ListWaypoint,
-    ListLanePoint,
-    Polygon
-)
+from handler.agent_handler import AgentHandler
+from handler.map_handler import MapHandler
 
 
 class DataCollection:
     def __init__(self, config: DictConfig):
         self._config = config
         self._env = Environment(config)
-        self._get_data()
+        self._init()
 
         # data-pack to save scene
         self._data_scene = DataScene(config)
 
+        if self._config.save_data:
+            self._store_static()
+
         if self._config.visual:
             self._cache_map()
 
-    def _get_data(self):
-        # data from carla
-        self._waypoints = self._env.map.generate_waypoints(2.0)
-        self._crosswalk = self._env.map.get_crosswalks()
-
-        # convert to my data
-        self.list_waypoints = ListWaypoint(self._waypoints)
-        self.list_lane_points = ListLanePoint(self._waypoints)
-        self.poly_cws = [
-            Polygon(self._crosswalk[i: i + 5])
-            for i in range(0, len(self._crosswalk), 5)
-        ]
+    def _init(self):
+        # map handler
+        self.map_handler = MapHandler(
+            config=self._config,
+            env=self._env
+        )
 
         # agent handler
-        self.agent_handler = AgentHandler(configs=self._config, world=self._env.world)
-        self.agent_handler.spawn_actors()
+        self.agent_handler = AgentHandler(
+            configs=self._config,
+            world=self._env.world
+        )
 
         # define instance to visualize
         self.viz = Figure()
 
     def _store_static(self):
-        # store dynamic property
+        # static map
+        self._data_scene.static = self.map_handler.data
+        # dynamic property
         self._data_scene.dynamic_property = self.agent_handler.get_data_dynamic_property()
 
     def _cache_map(self):
         # draw static
-        self.viz.draw_static(container=[self.list_waypoints])
-        self.viz.draw_static(container=[self.list_lane_points])
-        self.viz.draw_static(container=self.poly_cws)
+        self.viz.draw_static(container=[self.map_handler.map.list_waypoints])
+        self.viz.draw_static(container=[self.map_handler.map.list_lane_points])
+        self.viz.draw_static(container=self.map_handler.map.poly_cws)
         # cache static objects/map
         self.viz.cache_map()
 
@@ -71,10 +67,6 @@ class DataCollection:
                     for agent in agents
                 ])
 
-            # TODO: collect
-            # - static
-            # - dynamic property:
-            # - dynamic state: ok
             now = time.time()
             # get datapoint by each delta time
             if (now - last_tick > self._config.storage.delta_time) and self._config.save_data:
