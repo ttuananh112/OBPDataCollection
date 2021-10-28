@@ -12,7 +12,7 @@ class Agent:
             id: int,
             type: str,
             actor: carla.Actor,
-            behavior_agent: BehaviorAgent
+            behavior_agent: BehaviorAgent = None
     ):
         self._id = id
         self._type = type
@@ -52,4 +52,5 @@ class Agent:
         self.behavior_agent = var
 
     def run_step(self):
-        self._actor.apply_control(self.behavior_agent.run_step())
+        if self.behavior_agent is not None:
+            self._actor.apply_control(self.behavior_agent.run_step())

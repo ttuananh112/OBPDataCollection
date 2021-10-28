@@ -16,6 +16,7 @@ class Figure:
         viz.draw_dynamic(dynamic_container)
         time.sleep(time)
     """
+
     def __init__(self):
         self.fig, self.ax, self.bg = None, None, None
         self._get_figure()
@@ -47,10 +48,9 @@ class Figure:
             self,
             x: Union[list, tuple, np.ndarray],
             y: Union[list, tuple, np.ndarray],
-            line_type: str = '-',
-            color: tuple = (1, 0, 0)
+            color: str
     ):
-        artist = self.ax.plot(x, y, line_type, c=color)[0]
+        artist = self.ax.fill(x, y, color)[0]
         artist.set_animated(True)
         return artist
 
@@ -81,22 +81,25 @@ class Figure:
         ])
         return points
 
-    def _draw_dynamic_component(self, a_id, global_bbox):
+    def _draw_dynamic_component(
+            self,
+            a_id: int,
+            global_bbox: np.ndarray,
+            color: str
+    ):
         # create artist if its first run
         if self.is_first_run:
             self.artists[a_id] = self._get_artist(
                 x=global_bbox[:, 0],
                 y=global_bbox[:, 1],
-                line_type='-'
+                color=color
             )
 
         # use cache
         else:
-            # set data
-            self.artists[a_id].set_data(
-                global_bbox[:, 0],
-                global_bbox[:, 1]
-            )
+            # set new position and color
+            self.artists[a_id].set_xy(global_bbox[:, :2])
+            self.artists[a_id].set_color(color)
 
             # redraw just the points
             self.ax.draw_artist(self.artists[a_id])
@@ -132,16 +135,42 @@ class Figure:
 
             for agent in container:
                 a_id = agent.id
+                a_type = agent.type
                 # agent transform
                 transform = agent.actor.get_transform()
                 # get bounding box
                 bbox = agent.actor.bounding_box
+
+                # set color for object
+                if a_type == "traffic_light":
+                    state = str(agent.actor.state)
+                    # extend size of traffic light
+                    # for visual purpose
+                    bbox.extent.x = 5
+                    bbox.extent.y = 1
+
+                    if state == "Red":
+                        color = "r"
+                    elif state == "Yellow":
+                        color = "y"
+                    elif state == "Green":
+                        color = "g"
+                    else:  # off or unknown
+                        color = "k"
+                else:  # moving object
+                    color = "m"
+
                 # global bounding box
                 global_bbox = self._get_global_coordinate_bbox(
                     transform=transform,
                     bbox=bbox
                 )
-                self._draw_dynamic_component(a_id=a_id, global_bbox=global_bbox)
+
+                self._draw_dynamic_component(
+                    a_id=a_id,
+                    global_bbox=global_bbox,
+                    color=color
+                )
 
         # draw
         if self.is_first_run:

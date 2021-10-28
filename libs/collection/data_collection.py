@@ -63,7 +63,7 @@ class DataCollection:
                 self.viz.draw_dynamic([
                     agent
                     for a_type, agents in self.agent_handler.agents.items()
-                    if a_type in ("car", "motorbike")  # currently get car and motorbike only
+                    if a_type in ("car", "motorbike", "traffic_light")  # currently get car and motorbike only
                     for agent in agents
                 ])
 

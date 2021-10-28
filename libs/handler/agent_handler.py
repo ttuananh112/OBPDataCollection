@@ -32,7 +32,8 @@ class AgentHandler:
             "car": [],
             "motorbike": [],
             "bicycle": [],
-            "pedestrian": []
+            "pedestrian": [],
+            "traffic_light": []
         }
 
         # spawn actors
@@ -89,6 +90,19 @@ class AgentHandler:
         #     behavior=self._get_behavior()
         # )
 
+    def _get_traffic_light(self):
+        agent_type = "traffic_light"
+        tl_actors = self._world.get_actors().filter('traffic.traffic_light*')
+        for tl_actor in tl_actors:
+            self.agents[agent_type].append(
+                Agent(
+                    id=self._length,
+                    type=agent_type,
+                    actor=tl_actor
+                )
+            )
+            self._length += 1
+
     def _spawn_actors(self):
         # spawn cars
         for _ in range(self._configs.traffic.num_car):
@@ -103,6 +117,9 @@ class AgentHandler:
         for _ in range(self._configs.traffic.num_pedestrian):
             self._spawn_pedestrian()
 
+        # get traffic lights on map
+        self._get_traffic_light()
+
     def run_step(self):
         for object_type, list_agents in self.agents.items():
             for instance in list_agents:
@@ -112,7 +129,7 @@ class AgentHandler:
         """
         Get data of all agent at the moment
         Each row should be:
-                                                          # velocity
+                                                          # velocity / light state
         | timestamp | id | center_x | center_y | heading | status |
         Returns:
             pd.DataFrame
@@ -121,21 +138,29 @@ class AgentHandler:
         data = pd.DataFrame(columns=columns)
         now = time.time()
 
-        for _, agents in self.agents.items():
+        for a_type, agents in self.agents.items():
             for agent in agents:
                 _id = int(agent.id)
                 _a_transform = agent.actor.get_transform()
                 _center_x = _a_transform.location.x
                 _center_y = _a_transform.location.y
                 _heading = float(np.radians(_a_transform.rotation.yaw))
-                # get scalar of velocity
-                _velocity = float(np.linalg.norm(vector3d_to_numpy(agent.actor.get_velocity())))
+
+                if a_type == "traffic_light":
+                    # get status of light
+                    _status = str(agent.actor.state)
+                else:
+                    # if its moving object
+                    # get scalar of velocity
+                    _status = float(np.linalg.norm(
+                        vector3d_to_numpy(agent.actor.get_velocity())
+                    ))
 
                 row = dict(zip(
                     columns,
                     [now, _id,
                      _center_x, _center_y,
-                     _heading, _velocity]
+                     _heading, _status]
                 ))
                 # add row data
                 data = data.append(row, ignore_index=True)
