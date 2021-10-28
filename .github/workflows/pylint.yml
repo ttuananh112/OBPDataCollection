@@ -20,4 +20,5 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
+        export PYTHONPATH=$PYTHONPATH:$PWD/libs
         pylint `ls -R|grep .py$|xargs`
