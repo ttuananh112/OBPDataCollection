@@ -20,4 +20,5 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pycodestyle
       run: |
+        export PYTHONPATH=$PYTHONPATH:$PWD/libs
         pycodestyle --max-line-length=120 .
