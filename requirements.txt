@@ -1,0 +1,7 @@
+carla_client_unofficial==0.9.11
+hydra-core==1.1.1
+matplotlib==3.3.4
+networkx==2.2
+numpy==1.17.0
+omegaconf==2.1.1
+pandas==1.1.5
