@@ -53,4 +53,25 @@
     |__ Scene2
         ...
 ```
-  
+
+### 3. Addition:
+- Current object type:
+
+| Static         | Dynamic       |
+| -------------- | ------------- |
+| waypoint       | car           |
+| l_lane         | motorbike     |
+| r_lane         | traffic_light |
+| crosswalk      | pedestrian    |
+| [traffic_sign] | bicycle       |
+
+* [traffic_sign] could be any type of traffic sign, for example:
+  * speed_limit.30
+  * speed_limit.60
+  * speed_limit.90
+  * ...
+* pedestrian and bicycle have not been supported yet.
+
+### 4. TODO:
+
+- A lot of things to do...

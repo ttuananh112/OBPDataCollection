@@ -5,13 +5,15 @@ from common.environment import Environment
 from common.shape import (
     ListWaypoint,
     ListLanePoint,
-    Polygon
+    Polygon,
+    Circle
 )
 
 from maps.components import (
-    CrossWalk,
     Waypoint,
-    Lane
+    Lane,
+    CrossWalk,
+    TrafficSign
 )
 
 
@@ -29,28 +31,41 @@ class Map:
 
     def _get_data(self):
         # data from carla
+        # waypoints
         _waypoints = self._env.map.generate_waypoints(
             self._config.components.waypoints.distance
         )
+        # crosswalks
         _crosswalk = self._env.map.get_crosswalks()
+        # traffic signs
+        _traffic_signs = [
+            ts
+            for ts in self._env.world.get_actors().filter('traffic*')
+            if "traffic_light" not in ts.type_id
+        ]
 
         # convert to my data
         self.list_waypoints = ListWaypoint(_waypoints)
         self.list_lane_points = ListLanePoint(_waypoints)
-        self.poly_cws = [
+        self.list_poly_cws = [
             Polygon(_crosswalk[i: i + 5])
             for i in range(0, len(_crosswalk), 5)
+        ]
+        self.list_circle_ts = [
+            Circle(ts)
+            for ts in _traffic_signs
         ]
 
         # wrap up data to components
         self._get_crosswalks()
         self._get_waypoints()
         self._get_lanes()
+        self._get_traffic_signs()
 
     def _get_crosswalks(self):
         self._components["crosswalks"] = [
             CrossWalk(self._config, poly)
-            for poly in self.poly_cws
+            for poly in self.list_poly_cws
         ]
 
     def _get_waypoints(self):
@@ -62,6 +77,12 @@ class Map:
     def _get_lanes(self):
         self._components["lanes"] = [
             Lane(self._config, self.list_lane_points)
+        ]
+
+    def _get_traffic_signs(self):
+        self._components["traffic_signs"] = [
+            TrafficSign(self._config, circle)
+            for circle in self.list_circle_ts
         ]
 
     def get_dataframe(self) -> pd.DataFrame:

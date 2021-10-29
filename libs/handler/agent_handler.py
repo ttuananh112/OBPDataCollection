@@ -79,9 +79,11 @@ class AgentHandler:
             behavior=self._get_behavior()
         )
 
+    # TODO: spawn bicycle
     def _spawn_bicycle(self):
         pass
 
+    # TODO: spawn pedestrian
     def _spawn_pedestrian(self):
         pass
         # self._spawn(

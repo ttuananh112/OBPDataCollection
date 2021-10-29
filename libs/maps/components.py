@@ -5,6 +5,7 @@ import pandas as pd
 
 from common.shape import (
     Shape,
+    Circle,
     Polygon,
     ListWaypoint,
     ListLanePoint
@@ -98,6 +99,29 @@ class Waypoint(MapComponent, ABC):
         # id will be assigned later in MapHandler
         _id = np.zeros((num_row, 1))
         _type = np.array(["waypoint"] * num_row).reshape((-1, 1))
+        data = np.concatenate([_id, _type, points], axis=1)
+
+        df = pd.DataFrame(data=data, columns=self._config.storage.static.columns)
+        return df
+
+
+class TrafficSign(MapComponent, ABC):
+    def __init__(
+            self,
+            config: DictConfig,
+            shape: Circle
+    ):
+        super().__init__(config, shape)
+
+    def _get_data(self):
+        # get x, y only
+        points = self._shape.points[:2].reshape((1, -1))
+        num_row = 1
+        # id will be assigned later in MapHandler
+        _id = np.zeros((num_row, 1))
+        # skip "traffic" in text
+        _ts_text = ".".join(self._shape.get_data().type_id.split(".")[1:])
+        _type = np.array([_ts_text] * num_row).reshape((-1, 1))
         data = np.concatenate([_id, _type, points], axis=1)
 
         df = pd.DataFrame(data=data, columns=self._config.storage.static.columns)

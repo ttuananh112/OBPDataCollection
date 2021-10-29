@@ -50,7 +50,8 @@ class DataCollection:
         # draw static
         self.viz.draw_static(container=[self.map_handler.map.list_waypoints])
         self.viz.draw_static(container=[self.map_handler.map.list_lane_points])
-        self.viz.draw_static(container=self.map_handler.map.poly_cws)
+        self.viz.draw_static(container=self.map_handler.map.list_poly_cws)
+        self.viz.draw_static(container=self.map_handler.map.list_circle_ts)
         # cache static objects/map
         self.viz.cache_map()
 
@@ -63,7 +64,6 @@ class DataCollection:
                 self.viz.draw_dynamic([
                     agent
                     for a_type, agents in self.agent_handler.agents.items()
-                    if a_type in ("car", "motorbike", "traffic_light")  # currently get car and motorbike only
                     for agent in agents
                 ])
 
