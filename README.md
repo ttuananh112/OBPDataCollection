@@ -12,28 +12,34 @@
 --> Be divided into 2 type: static and dynamic <br> 
 
   * Static: such as lane, crosswalk, ... <br>
-    * id .......( group by <br>
-    * type .....to get object ) <br>
-    * x ........( point's position .... | absolute <br>
-    * y ........... of shape... ) ........ | value <br>
+    ```
+    - id      (   group by 
+    - type     to get object )
+    - x       ( point's position     | absolute <br>
+    - y             of shape     )   | value
+    ```
     
   * Dynamic: such as vehicle, pedestrian, traffic light, ... <br>
   has property and state <br>
     * Property:
-      * id
-      * type
-      * width
-      * length
+      ```
+      - id
+      - type
+      - width
+      - length
+      ```
     * State:
-      * timestamp
-      * id
-      * center_x ... ( center point ... | ... absolute ... | also be
-      * center_y ........ of object ... ) | ... value .........| ground-truth
-      * heading .... (yaw - align with map orientation)
-      * status: depend on object type
-        * red/yellow/green for traffic light
-        * velocity for moving object
-        * ... <br>
+      ```
+      - timestamp
+      - id
+      - center_x    ( center point     | absolute   | also be
+      - center_y        of object  )   |  value     | ground-truth
+      - heading     (yaw - align with map orientation)
+      - status: depend on object type
+        __ red/yellow/green for traffic light
+        __ velocity for moving object
+        __ ...
+      ```
       
       |--> Data will be saved as short scene (~20 seconds?)
 
@@ -42,13 +48,13 @@
 - Prediction
     |__ Scene1
     |   |__ Images
-    |       |__ 10000000.jpeg
-    |       |__ 10000001.jpeg
-    |           ...
-    |   |__ static.csv
-    |   |__ Dynamic
-    |       |__ property.csv
-    |       |__ state.csv
+    |   |   |__ 10000000.jpeg
+    |   |   |__ 10000001.jpeg
+    |   |       ...
+    |   |__ Points
+    |       |__ static.csv
+    |       |__ dynamic_property.csv
+    |       |__ dynamic_state.csv
     |
     |__ Scene2
         ...
