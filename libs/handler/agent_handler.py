@@ -150,13 +150,14 @@ class AgentHandler:
 
                 if a_type == "traffic_light":
                     # get status of light
-                    _status = str(agent.actor.state)
+                    _status = {"light_state": str(agent.actor.state).upper()}
                 else:
                     # if its moving object
                     # get scalar of velocity
-                    _status = float(np.linalg.norm(
+                    vel = float(np.linalg.norm(
                         vector3d_to_numpy(agent.actor.get_velocity())
                     ))
+                    _status = {"velocity": vel}
 
                 row = dict(zip(
                     columns,

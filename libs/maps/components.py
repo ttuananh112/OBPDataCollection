@@ -8,7 +8,8 @@ from common.shape import (
     Circle,
     Polygon,
     ListWaypoint,
-    ListLanePoint
+    # ListLanePoint
+    Polyline
 )
 
 
@@ -28,7 +29,7 @@ class MapComponent:
         This should return a pd.DataFrame
         each row is a point of polygon / list waypoints
         with columns like:
-        | id | type | x | y |
+        | id | type | x | y | status
         Returns:
             pd.DataFrame
         """
@@ -41,17 +42,27 @@ class CrossWalk(MapComponent, ABC):
             config: DictConfig,
             shape: Polygon
     ):
+        """
+        Class contains a polygon of crosswalk
+        Args:
+            config (DictConfig): configuration
+            shape (Polygon): a polygon of crosswalk
+        """
         super().__init__(config, shape)
 
     def _get_data(self):
         # get x, y only
-        points = self._shape.points[:, :2]
-        num_row = len(points)
+        _points = self._shape.points[:, :2]
+        num_row = len(_points)
         # id will be assigned later in MapHandler
         _id = np.zeros((num_row, 1))
         _type = np.array(["crosswalk"] * num_row).reshape((-1, 1))
-        data = np.concatenate([_id, _type, points], axis=1)
 
+        # fill nan for status column
+        _status = np.empty((num_row, 1))
+        _status.fill(np.nan)
+
+        data = np.concatenate([_id, _type, _points, _status], axis=1)
         df = pd.DataFrame(data=data, columns=self._config.storage.static.columns)
         return df
 
@@ -60,27 +71,37 @@ class Lane(MapComponent, ABC):
     def __init__(
             self,
             config: DictConfig,
-            shape: ListLanePoint
+            shape: Polyline
     ):
+        """
+        Class contains a polyline of Lane
+        Each polyline has 10 points by default
+        Args:
+            config (DictConfig): configuration
+            shape (Polyline): a polyline of lane
+        """
         super().__init__(config, shape)
 
     def _get_data(self):
-        # get x, y only
-        l_lane = self._shape.points[:, :2]
-        r_lane = self._shape.points[:, 3:5]
-        num_row = len(l_lane)
+        _lane_type = self._shape.lane_type  # _shape is Polyline
+        _points = self._shape.points[:, :2]
+        num_row = len(_points)
+
         # id will be assigned later in MapHandler
-        _l_id = np.zeros((num_row, 1))
-        _l_type = np.array(["l_lane"] * num_row).reshape((-1, 1))
+        _id = np.zeros((num_row, 1))
+        _type = np.array([_lane_type] * num_row).reshape((-1, 1))
+        _status = np.empty((num_row, 1))
 
-        _r_id = np.zeros((num_row, 1))
-        _r_type = np.array(["r_lane"] * num_row).reshape((-1, 1))
-
-        l_data = np.concatenate([_l_id, _l_type, l_lane], axis=1)
-        r_data = np.concatenate([_r_id, _r_type, r_lane], axis=1)
-        data = np.concatenate([l_data, r_data], axis=0)
-
+        data = np.concatenate([_id, _type, _points, _status], axis=1)
         df = pd.DataFrame(data=data, columns=self._config.storage.static.columns)
+
+        # update additional information in status column
+        for i, wp in enumerate(self._shape.waypoints):
+            df.loc[i]["status"] = {
+                "intersection": wp.is_intersection
+                # has_traffic_control?
+                # turn?
+            }
         return df
 
 
@@ -90,17 +111,27 @@ class Waypoint(MapComponent, ABC):
             config: DictConfig,
             shape: ListWaypoint
     ):
+        """
+        Class contains a list waypoints in map
+        Args:
+            config (DictConfig): configuration
+            shape (ListWaypoint): list of all waypoints in map
+        """
         super().__init__(config, shape)
 
     def _get_data(self):
         # get x, y only
-        points = self._shape.points[:, :2]
-        num_row = len(points)
+        _points = self._shape.points[:, :2]
+        num_row = len(_points)
         # id will be assigned later in MapHandler
         _id = np.zeros((num_row, 1))
         _type = np.array(["waypoint"] * num_row).reshape((-1, 1))
-        data = np.concatenate([_id, _type, points], axis=1)
 
+        # fill nan for status column
+        _status = np.empty((num_row, 1))
+        _status.fill(np.nan)
+
+        data = np.concatenate([_id, _type, _points, _status], axis=1)
         df = pd.DataFrame(data=data, columns=self._config.storage.static.columns)
         return df
 
@@ -111,18 +142,28 @@ class TrafficSign(MapComponent, ABC):
             config: DictConfig,
             shape: Circle
     ):
+        """
+        Class contains a TrafficSign
+        Args:
+            config (DictConfig): configuration
+            shape (Circle): a traffic sign
+        """
         super().__init__(config, shape)
 
     def _get_data(self):
         # get x, y only
-        points = self._shape.points[:2].reshape((1, -1))
+        _points = self._shape.points[:2].reshape((1, -1))
         num_row = 1
         # id will be assigned later in MapHandler
         _id = np.zeros((num_row, 1))
         # skip "traffic" in text
         _ts_text = ".".join(self._shape.get_data().type_id.split(".")[1:])
         _type = np.array([_ts_text] * num_row).reshape((-1, 1))
-        data = np.concatenate([_id, _type, points], axis=1)
 
+        # fill nan for status column
+        _status = np.empty((num_row, 1))
+        _status.fill(np.nan)
+
+        data = np.concatenate([_id, _type, _points, _status], axis=1)
         df = pd.DataFrame(data=data, columns=self._config.storage.static.columns)
         return df

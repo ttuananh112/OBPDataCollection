@@ -1,1 +1,1 @@
-columns: ["id", "type", "x", "y"]
+columns: ["id", "type", "x", "y", "status"]

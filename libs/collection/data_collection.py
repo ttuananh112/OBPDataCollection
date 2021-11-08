@@ -48,9 +48,9 @@ class DataCollection:
 
     def _cache_map(self):
         # draw static
-        self.viz.draw_static(container=[self.map_handler.map.list_waypoints])
-        self.viz.draw_static(container=[self.map_handler.map.list_lane_points])
-        self.viz.draw_static(container=self.map_handler.map.list_poly_cws)
+        # self.viz.draw_static(container=[self.map_handler.map.list_waypoints])
+        self.viz.draw_static(container=self.map_handler.map.list_polyline_lanes)
+        self.viz.draw_static(container=self.map_handler.map.list_polygon_cws)
         self.viz.draw_static(container=self.map_handler.map.list_circle_ts)
         # cache static objects/map
         self.viz.cache_map()

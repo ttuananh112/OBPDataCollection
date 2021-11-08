@@ -201,3 +201,54 @@ class ListLanePoint(Shape, ABC):
             c=self._color,
             markersize=self._marker_size
         )
+
+
+class Polyline(Shape, ABC):
+    """
+    Class for drawing each polyline of lane
+    """
+
+    def __init__(
+            self,
+            data: list,
+            waypoints: list,
+            lane_type: str = None
+    ):
+        """
+        Args:
+            data: (list(carla.Location))
+                List location to create Lane polyline
+                For default, each polyline has 10 points
+            waypoints: (list(carla.Waypoint))
+                List of waypoints used to generate lanes
+            lane_type (str): l_lane/r_lane
+        """
+        super().__init__(data)
+        self.waypoints = waypoints
+        self.lane_type = lane_type
+        self._line_style = '-'
+        self._color = {
+            "l_lane": (0, 0, 1, 0.5),
+            "r_lane": (0, 0, 1, 1)
+        }
+        self._marker_size = 1.
+
+    def _get_points(self):
+        lane_points = np.vstack([
+            vector3d_to_numpy(loc)
+            for loc in self._data  # carla.Location
+        ])
+        return lane_points
+
+    def draw(self, ax):
+        _lane_type = "r_lane" \
+            if self.lane_type is None \
+            else self.lane_type
+
+        ax.plot(
+            self.points[:, 0],
+            self.points[:, 1],
+            self._line_style,
+            c=self._color[_lane_type],
+            markersize=self._marker_size
+        )
