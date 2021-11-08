@@ -17,6 +17,7 @@
     - type     to get object )
     - x       ( point's position     | absolute <br>
     - y             of shape     )   | value
+    - status: additional information
     ```
     
   * Dynamic: such as vehicle, pedestrian, traffic light, ... <br>
@@ -36,7 +37,7 @@
       - center_y        of object  )   |  value     | ground-truth
       - heading     (yaw - align with map orientation)
       - status: depend on object type
-        __ red/yellow/green for traffic light
+        __ light_state = {"RED", "YELLOW", "GREEN"}
         __ velocity for moving object
         __ ...
       ```
