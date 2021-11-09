@@ -4,7 +4,7 @@ from omegaconf import DictConfig
 
 from common.environment import Environment
 from common.shape import (
-    ListWaypoint,
+    # ListWaypoint,
     # ListLanePoint,
     Polyline,
     Polygon,
@@ -12,7 +12,7 @@ from common.shape import (
 )
 
 from maps.components import (
-    Waypoint,
+    # Waypoint,
     Lane,
     CrossWalk,
     TrafficSign
@@ -55,29 +55,27 @@ class Map:
             chunk = []
 
             end_loc = w2.transform.location
-            d_w1_w2 = w1.transform.location.distance(end_loc)
-
             curr_w = w1
             is_last = False
-            # distance from w1 to w2 must be long enough to do sampling
-            if d_w1_w2 >= sampling_distance * num_points:
-                while True:
-                    d_cur_w2 = curr_w.transform.location.distance(end_loc)
-                    # flag to denote this is the last polygon
-                    if d_cur_w2 < sampling_distance * num_points:
-                        is_last = True
 
-                    for _ in range(num_points):
-                        # add waypoint to chunk
-                        chunk.append(curr_w)
-                        next_w = curr_w.next(sampling_distance)[0]
-                        curr_w = next_w
+            # do while loop to get chunks
+            while True:
+                d_cur_w2 = curr_w.transform.location.distance(end_loc)
+                # flag to denote this is the last polygon
+                if d_cur_w2 < sampling_distance * num_points:
+                    is_last = True
 
-                    # add chunk to containers
-                    containers.append(chunk)
-                    # break if meet last polygon
-                    if is_last:
-                        break
+                for _ in range(num_points):
+                    # add waypoint to chunk
+                    chunk.append(curr_w)
+                    next_w = curr_w.next(sampling_distance)[0]
+                    curr_w = next_w
+
+                # add chunk to containers
+                containers.append(chunk)
+                # break if meet last polygon
+                if is_last:
+                    break
         return containers
 
     @staticmethod
@@ -186,7 +184,7 @@ class Map:
         """
         Get dataframe from static map
         columns should be:
-        | id | type | x | y |
+        | id | type | x | y | status
         Returns:
             pd.DataFrame
         """
