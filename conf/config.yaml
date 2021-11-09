@@ -6,5 +6,5 @@ defaults:
   - components: comp01
 
 visual: True
-save_data: False
+save_data: True
 sleep: 0.001

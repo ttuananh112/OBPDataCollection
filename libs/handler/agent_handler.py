@@ -8,6 +8,7 @@ from agents.agent import Agent
 from agents.navigation.behavior_agent import BehaviorAgent
 
 from common.convert import vector3d_to_numpy
+import common.utils as utils
 
 
 class AgentHandler:
@@ -137,9 +138,8 @@ class AgentHandler:
             pd.DataFrame
         """
         columns = self._configs.storage.dynamic_state.columns
-        data = pd.DataFrame(columns=columns)
         now = time.time()
-
+        data = []
         for a_type, agents in self.agents.items():
             for agent in agents:
                 _id = int(agent.id)
@@ -159,16 +159,13 @@ class AgentHandler:
                     ))
                     _status = {"velocity": vel}
 
-                row = dict(zip(
-                    columns,
-                    [now, _id,
-                     _center_x, _center_y,
-                     _heading, _status]
-                ))
+                row = [[now, _id,
+                        _center_x, _center_y,
+                        _heading, _status]]
                 # add row data
-                data = data.append(row, ignore_index=True)
+                data += row
 
-        return data
+        return pd.DataFrame(data, columns=columns)
 
     def get_data_dynamic_property(self):
         """

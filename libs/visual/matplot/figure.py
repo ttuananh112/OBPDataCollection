@@ -29,7 +29,7 @@ class Figure:
         self.fig, self.ax = plt.subplots(
             1, 1,
             subplot_kw={"aspect": "equal"},
-            figsize=(20, 20)
+            figsize=(15, 15)
         )
 
         self.ax.get_xaxis().set_visible(False)
@@ -128,7 +128,7 @@ class Figure:
         # draw if len(container) > 0
         # flush
         self.fig.canvas.flush_events()
-        # # restore background
+        # restore background
         self.fig.canvas.restore_region(self.bg)
 
         # if container contains list of Agent

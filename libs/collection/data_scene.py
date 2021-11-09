@@ -21,6 +21,9 @@ class DataScene:
     def save(self, folder_path):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-        self.static.to_feather(f"{folder_path}/static.csv", index=False)
-        self.dynamic_property.to_feather(f"{folder_path}/dynamic_property.csv", index=False)
-        self.dynamic_state.to_feather(f"{folder_path}/dynamic_state.csv", index=False)
+        self.static.to_csv(f"{folder_path}/static.csv", index=False)
+        self.dynamic_property.to_csv(f"{folder_path}/dynamic_property.csv", index=False)
+        self.dynamic_state.to_csv(f"{folder_path}/dynamic_state.csv", index=False)
+        print("static", self.static.shape)
+        print("dyn_prop", self.dynamic_property.shape)
+        print("dyn_stat", self.dynamic_state.shape)

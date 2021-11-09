@@ -1,2 +1,2 @@
-distance: 1.5
+distance: 2.
 num_wp_per_chunk: 10  # each lane_line will have 10 points
