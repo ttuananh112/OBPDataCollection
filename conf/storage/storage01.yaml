@@ -3,5 +3,5 @@ defaults:
   - dynamic_state: ds01
   - static: s01
 
-delta_time: 0.2  # difference in time of 2 consecutive datapoint
+delta_time: 0.1  # difference in time of 2 consecutive datapoint (=1/frequency)
 duration: 30.  # duration of a data scene

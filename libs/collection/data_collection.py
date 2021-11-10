@@ -29,7 +29,7 @@ class DataCollection:
 
         self._duration = None \
             if not self._config.save_data \
-            else self._config.storage.duration
+            else self._config.storage.duration + 1.  # 1s for bias
 
     def _init(self):
         # map handler
