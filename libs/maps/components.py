@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod, ABC
 from omegaconf import DictConfig
 import numpy as np
@@ -97,11 +98,11 @@ class Lane(MapComponent, ABC):
 
         # update additional information in status column
         for i, wp in enumerate(self._shape.waypoints):
-            df.loc[i]["status"] = {
+            df.loc[i]["status"] = json.dumps({
                 "intersection": wp.is_intersection
                 # has_traffic_control?
                 # turn?
-            }
+            })
         return df
 
 

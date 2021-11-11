@@ -1,3 +1,4 @@
+import json
 import time
 import carla
 import numpy as np
@@ -150,14 +151,14 @@ class AgentHandler:
 
                 if a_type == "traffic_light":
                     # get status of light
-                    _status = {"light_state": str(agent.actor.state).upper()}
+                    _status = json.dumps({"light_state": str(agent.actor.state).upper()})
                 else:
                     # if its moving object
                     # get scalar of velocity
                     vel = float(np.linalg.norm(
                         vector3d_to_numpy(agent.actor.get_velocity())
                     ))
-                    _status = {"velocity": vel}
+                    _status = json.dumps({"velocity": vel})
 
                 row = [[now, _id,
                         _center_x, _center_y,
