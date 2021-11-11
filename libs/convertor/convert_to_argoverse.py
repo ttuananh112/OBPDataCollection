@@ -132,10 +132,14 @@ class ConvertToArgoverse:
             agent_id:
 
         Returns:
-
+            (pd.DataFrame)
+            if return None -> scene has < 2 objects
         """
         # get AGENT and the others
         other_id = data_scene["id"].unique().tolist()
+        # only get scene with num_objects >= 2
+        if len(other_id) < 2:
+            return None
         other_id.remove(agent_id)
         # get AV, remove AV from other
         av_id = np.random.choice(other_id)
@@ -180,6 +184,10 @@ class ConvertToArgoverse:
                 data_scene=data_scene_clone,
                 agent_id=agent_id
             )
+            # skip if return None
+            # means scene only has < 2 objects
+            if data_scene_clone is None:
+                continue
             # re-order column in dataframe
             data_scene_clone = data_scene_clone[self._ordered_columns]
             # save dataframe
@@ -224,3 +232,5 @@ class ConvertToArgoverse:
                     # done a scene data
                     # ready to set AV, AGENT
                     self._set_roles(data_scene, counter, folder)
+                    # reset data_scene
+                    data_scene = pd.DataFrame(columns=columns)
