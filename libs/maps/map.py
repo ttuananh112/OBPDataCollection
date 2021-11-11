@@ -73,6 +73,8 @@ class Map:
 
                 # add chunk to containers
                 containers.append(chunk)
+                # empty chunk for next one
+                chunk = []
                 # break if meet last polygon
                 if is_last:
                     break
