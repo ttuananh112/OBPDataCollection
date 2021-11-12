@@ -192,7 +192,7 @@ class ConvertToArgoverse:
             data_scene_clone = data_scene_clone[self._ordered_columns]
             # save dataframe
             data_scene_clone.to_csv(
-                f"{save_folder}/{counter:04d}_{i:04d}.csv",
+                f"{save_folder}/{counter:012d}_{i:04d}.csv",
                 index=False
             )
 
