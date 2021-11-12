@@ -1,7 +1,7 @@
 defaults:
   - connection: local
   - map: town01
-  - traffic: traffic01
+  - traffic: traffic02
   - storage: storage01
   - components: comp01
 

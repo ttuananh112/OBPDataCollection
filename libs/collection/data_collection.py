@@ -2,6 +2,7 @@ import time
 import pandas as pd
 from omegaconf import DictConfig
 import concurrent.futures
+from omegaconf import OmegaConf
 
 import common.utils as utils
 from collection.data_scene import DataScene
@@ -9,6 +10,7 @@ from common.environment import Environment
 from visual.matplot.figure import Figure
 from handler.agent_handler import AgentHandler
 from handler.map_handler import MapHandler
+from common.save_configs import save_config
 
 
 class DataCollection:
@@ -146,7 +148,11 @@ class DataCollection:
         self._create_threads()
 
     def save_data(self, folder_path):
+        # save data scene
         self._data_scene.save(folder_path)
+        # save config
+        conf_dict = OmegaConf.to_container(self._config, resolve=True)
+        save_config(folder_path, conf_dict)
 
     def stop(self):
         # shutdown executor
