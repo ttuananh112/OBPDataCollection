@@ -5,9 +5,6 @@ defaults:
 
 data_to_get:
   - waypoints
-  - lanes
-  - traffic_signs
-  - crosswalks
 
 delta_time: 0.1  # difference in time of 2 consecutive datapoint (=1/frequency)
-duration: 600.  # duration of a data scene (seconds)
+duration: 1800.  # duration of a data scene (seconds)

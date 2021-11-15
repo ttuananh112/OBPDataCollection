@@ -134,6 +134,15 @@ class Waypoint(MapComponent, ABC):
 
         data = np.concatenate([_id, _type, _points, _status], axis=1)
         df = pd.DataFrame(data=data, columns=self._config.storage.static.columns)
+
+        # update additional information in status column
+        for i, wp in enumerate(self._shape.get_data()):
+            df.loc[i]["status"] = json.dumps({
+                "intersection": wp.is_intersection
+                # has_traffic_control?
+                # turn?
+            })
+
         return df
 
 

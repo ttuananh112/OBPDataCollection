@@ -4,7 +4,7 @@ from omegaconf import DictConfig
 
 from common.environment import Environment
 from common.shape import (
-    # ListWaypoint,
+    ListWaypoint,
     # ListLanePoint,
     Polyline,
     Polygon,
@@ -12,7 +12,7 @@ from common.shape import (
 )
 
 from maps.components import (
-    # Waypoint,
+    Waypoint,
     Lane,
     CrossWalk,
     TrafficSign
@@ -136,7 +136,7 @@ class Map:
 
         # -----
         # convert to my data
-        # self.list_waypoints = ListWaypoint(_waypoints)
+        self.list_polyline_waypoints = [ListWaypoint(_chunk) for _chunk in _chunk_waypoints]
 
         self.list_polyline_lanes = []
         for _chunk in _chunk_waypoints:
@@ -155,7 +155,7 @@ class Map:
 
         # wrap up data to components
         self._get_crosswalks()
-        # self._get_waypoints()
+        self._get_waypoints()
         self._get_lanes()
         self._get_traffic_signs()
 
@@ -165,10 +165,11 @@ class Map:
             for poly in self.list_polygon_cws
         ]
 
-    # def _get_waypoints(self):
-    #     self._components["waypoints"] = [
-    #         Waypoint(self._config, self.list_waypoints)
-    #     ]
+    def _get_waypoints(self):
+        self._components["waypoints"] = [
+            Waypoint(self._config, polyline_waypoint)
+            for polyline_waypoint in self.list_polyline_waypoints
+        ]
 
     def _get_lanes(self):
         self._components["lanes"] = [
@@ -194,6 +195,10 @@ class Map:
         # counter for id
         counter = 0
         for k, component in self._components.items():
+            # only get data in config.storage.data_to_get
+            if k not in self._config.storage.data_to_get:
+                continue
+
             for instance in component:
                 ins_data = instance.data
                 # assign id by counter
