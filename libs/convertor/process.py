@@ -9,7 +9,8 @@ def set_roles_process(
         data_scene,
         agent_id,
         counter,
-        save_folder
+        save_folder,
+        batch_name
 ):
     data_scene_clone = data_scene.copy(deep=True)
     # get object surrounding AGENT in range
@@ -30,6 +31,6 @@ def set_roles_process(
     data_scene_clone = data_scene_clone[ORDERED_COLUMNS]
     # save dataframe
     data_scene_clone.to_csv(
-        f"{save_folder}/{counter:012d}_{agent_id:04d}.csv",
+        f"{save_folder}/{batch_name}_{counter:012d}_{agent_id:04d}.csv",
         index=False
     )

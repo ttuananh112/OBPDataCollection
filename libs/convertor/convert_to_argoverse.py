@@ -1,5 +1,7 @@
 import os
 import glob
+import shutil
+
 import pandas as pd
 
 from concurrent.futures import ProcessPoolExecutor
@@ -25,7 +27,8 @@ class ConvertToArgoverse:
     def _set_roles(
             data_scene: pd.DataFrame,
             counter: int,
-            save_folder: str
+            save_folder: str,
+            batch_name: str
     ):
         """
         Set AGENT role for objects, one by one
@@ -35,6 +38,7 @@ class ConvertToArgoverse:
             data_scene: (pd.DataFrame)
             counter: (int)
             save_folder: (str)
+            batch_name: (str)
 
         """
         # get list of ids
@@ -47,7 +51,8 @@ class ConvertToArgoverse:
                     data_scene=data_scene,
                     agent_id=agent_id,
                     counter=counter,
-                    save_folder=save_folder
+                    save_folder=save_folder,
+                    batch_name=batch_name
                 )
 
     def convert(self):
@@ -55,11 +60,33 @@ class ConvertToArgoverse:
         Main function to convert data
         """
         batches = glob.glob(f"{self._data_folder}/*")
-        for batch in batches:
-            # folder to reserve separated data by timestamp
-            folder = f"{batch}/dynamic_by_ts"
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+
+        # folder to reserve separated data by timestamp
+        all_batches_folder = f"{self._data_folder}/all_batches"
+        dynamic_by_ts_folder = f"{all_batches_folder}/dynamic_by_ts"
+        if not os.path.exists(dynamic_by_ts_folder):
+            os.makedirs(dynamic_by_ts_folder)
+
+        for i, batch in enumerate(batches):
+            if "all" in batch:
+                continue
+
+            if i == 0:
+                # copy dynamic properties
+                shutil.copyfile(
+                    f"{batch}/dynamic_property.csv",
+                    f"{all_batches_folder}/dynamic_property.csv"
+                )
+                # copy static map
+                shutil.copyfile(
+                    f"{batch}/static.csv",
+                    f"{all_batches_folder}/static.csv"
+                )
+                # copy meta dataset
+                shutil.copyfile(
+                    f"{batch}/data_config.txt",
+                    f"{all_batches_folder}/data_config.txt"
+                )
 
             # read dynamic object data and its property
             dynamic_prop = pd.read_csv(f"{batch}/dynamic_property.csv")
@@ -79,8 +106,9 @@ class ConvertToArgoverse:
                 data_scene = pd.concat([data_scene, frame])
                 # save data scene
                 if counter != 1 and counter % NUM_TS_PER_SCENE == 0:
+                    batch_name = os.path.basename(batch)
                     # done a scene data
                     # ready to set AV, AGENT
-                    self._set_roles(data_scene, counter, folder)
+                    self._set_roles(data_scene, counter, dynamic_by_ts_folder, batch_name)
                     # reset data_scene
                     data_scene = pd.DataFrame(columns=columns)

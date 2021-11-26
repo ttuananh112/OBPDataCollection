@@ -179,3 +179,6 @@ class Figure:
             self.is_first_run = False
 
         self.fig.canvas.blit(self.fig.bbox)
+
+    def close(self):
+        plt.close(self.fig)

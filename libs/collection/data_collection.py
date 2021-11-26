@@ -1,4 +1,5 @@
 import time
+import glob
 import pandas as pd
 from omegaconf import DictConfig
 import concurrent.futures
@@ -83,6 +84,7 @@ class DataCollection:
                 continue
             # else break if > _duration
             if time.time() - start > self._duration:
+                self.viz.fig.close()
                 break
 
     def __update_behaviors(self):
@@ -148,12 +150,18 @@ class DataCollection:
         self._create_threads()
 
     def save_data(self, folder_path):
+        print("saving...")
+        batch_num = len(glob.glob(f"{folder_path}/*"))
+        batch_folder = f"{folder_path}/batch{batch_num:02d}"
+
         # save data scene
-        self._data_scene.save(folder_path)
+        self._data_scene.save(batch_folder)
         # save config
         conf_dict = OmegaConf.to_container(self._config, resolve=True)
-        save_config(folder_path, conf_dict)
+        save_config(batch_folder, conf_dict)
+        print(f"saved data to {batch_folder}")
 
     def stop(self):
         # shutdown executor
         self.executor.shutdown()
+        self.viz.close()
