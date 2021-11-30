@@ -2,9 +2,9 @@ defaults:
   - connection: local
   - map: town01
   - traffic: traffic01
-  - storage: storage04
+  - storage: storage02
   - components: comp01
 
-visual: True
+visual: False
 save_data: True
 sleep: 0.001
