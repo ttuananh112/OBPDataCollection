@@ -39,16 +39,15 @@ class Statistics:
         for dynamic_file in tqdm(self._list_dynamics):
             df = pd.read_csv(dynamic_file)
             # stats by individual instance
-            df_by_id = df.groupby(by=["id"])
-            for _id, _frame in df_by_id:
-                # get heading and status of instance
-                heading = _frame["heading"]
-                status = _frame["status"]
+            df_agent = df.loc[df["object_type"] == "AGENT"]
+            # get heading and status of instance
+            heading = df_agent["heading"]
+            status = df_agent["status"]
 
-                avg_vel = get_velocity(status)
-                turn_dir = get_turning(heading, avg_vel)
-                result["velocity"].append(avg_vel)
-                result["turn"].append(turn_dir)
+            avg_vel = get_velocity(status)
+            turn_dir = get_turning(heading, avg_vel)
+            result["velocity"].append(avg_vel)
+            result["turn"].append(turn_dir)
 
         return result
 
